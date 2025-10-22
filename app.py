@@ -10,5 +10,9 @@ def index():
     ]
     return render_template('lists.html', lists=lists)
 
+@app.route("/lists/new")
+def new_list():
+    return render_template('new_list.html')
+
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
