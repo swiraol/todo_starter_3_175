@@ -1,6 +1,8 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, session, request
 
 app = Flask(__name__)
+
+app.secret_key='secret1'
 
 @app.route("/")
 def index():
@@ -8,11 +10,21 @@ def index():
 
 @app.route('/lists', methods=['GET', 'POST'])
 def get_lists():
-    lists = [
-        {'title': 'Lunch Groceries', 'todos': []},
-        {'title': 'Dinner Groceries', 'todos': []},
-    ]
-    return render_template('lists.html', lists=lists)
+    
+    current_method = request.method
+
+    if current_method == 'GET':
+        return render_template('lists.html', lists=session['lists'])
+    else:
+        title = request.form.get('list_title')
+        session['lists'] = [
+            {'title': 'Lunch Groceries', 'todos': ['Buy milk']},
+            {'title': 'Dinner Groceries', 'todos': []},
+            {'title': title, 'todos': []}
+        ]
+
+        session.modified = True
+        return redirect(url_for('get_lists'))
 
 @app.route("/lists/new")
 def add_new_list():
