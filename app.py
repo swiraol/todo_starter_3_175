@@ -22,26 +22,25 @@ def initialize_session():
 def index():
     return redirect(url_for('get_lists'))
 
-@app.route('/lists', methods=['GET', 'POST'])
+@app.route('/lists')
 def get_lists():
-    
-    current_method = request.method
 
-    if current_method == 'GET':
-        return render_template('lists.html', lists=session['lists'])
-    else:
-        title = request.form.get('list_title')
-        session['lists'].append({
-            'uuid': str(uuid4()),
-            'title': title,
-            'todos': [],
-        })
+    return render_template('lists.html', lists=session['lists'])
 
-        session.modified = True
-        return redirect(url_for('get_lists'))
+@app.route('/lists', methods=["POST"])
+def create_list():
+    title = request.form.get('list_title').strip()
+    session['lists'].append({
+        'id': str(uuid4()),
+        'title': title,
+        'todos': [],
+    })
+    session.modified = True
+
+    return redirect(url_for('get_lists'))
 
 @app.route("/lists/new")
-def add_new_list():
+def add_todo_list():
     return render_template('new_list.html')
 
 if __name__ == "__main__":
