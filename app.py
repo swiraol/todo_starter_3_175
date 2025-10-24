@@ -1,8 +1,22 @@
-from flask import Flask, render_template, redirect, url_for, session, request
+from uuid import uuid4
+
+from flask import (
+    Flask, 
+    redirect,
+    render_template,  
+    request,
+    session, 
+    url_for,
+)
 
 app = Flask(__name__)
 
 app.secret_key='secret1'
+
+@app.before_request
+def initialize_session():
+    if 'lists' not in session:
+        session['lists'] = []
 
 @app.route("/")
 def index():
@@ -17,11 +31,11 @@ def get_lists():
         return render_template('lists.html', lists=session['lists'])
     else:
         title = request.form.get('list_title')
-        session['lists'] = [
-            {'title': 'Lunch Groceries', 'todos': ['Buy milk']},
-            {'title': 'Dinner Groceries', 'todos': []},
-            {'title': title, 'todos': []}
-        ]
+        session['lists'].append({
+            'uuid': str(uuid4()),
+            'title': title,
+            'todos': [],
+        })
 
         session.modified = True
         return redirect(url_for('get_lists'))
