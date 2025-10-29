@@ -31,14 +31,18 @@ def get_lists():
 @app.route('/lists', methods=["POST"])
 def create_list():
     title = request.form.get('list_title').strip()
-    session['lists'].append({
-        'id': str(uuid4()),
-        'title': title,
-        'todos': [],
-    })
-    session.modified = True
+    if not title:
+        flash('A title was not provided', 'error')
+        return render_template('new_list.html')
+    else:
+        session['lists'].append({
+            'id': str(uuid4()),
+            'title': title,
+            'todos': [],
+        })
+        session.modified = True
 
-    flash('List was successfully added', 'success')
+        flash('List was successfully added', 'success')
 
     return redirect(url_for('get_lists'))
 
@@ -48,3 +52,4 @@ def add_todo_list():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
+
