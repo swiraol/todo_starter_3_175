@@ -9,6 +9,7 @@ from flask import (
     session, 
     url_for,
 )
+from todos.utils import error_for_list_title
 
 app = Flask(__name__)
 
@@ -31,26 +32,22 @@ def get_lists():
 @app.route('/lists', methods=["POST"])
 def create_list():
     title = request.form.get('list_title').strip()
-    if any(title == lst['title'] for lst in session['lists']):
-        flash('The title must be unique.', 'error')
+    error = error_for_list_title(title, session['lists'])
+    if error:
+        flash(error, 'error')
         session['new_list_title'] = title
         return redirect(url_for('add_todo_list'))
-    
-    if 1 <= len(title) <= 100:
-        session['lists'].append({
-            'id': str(uuid4()),
-            'title': title,
-            'todos': [],
-        })
-        session.modified = True
 
-        flash('List was successfully added', 'success')
+    session['lists'].append({
+        'id': str(uuid4()),
+        'title': title,
+        'todos': [],
+    })
+    session.modified = True
 
-        return redirect(url_for('get_lists'))
-    
-    flash('The title must be between 1 and 100 characters.', 'error')
-    session['new_list_title'] = title
-    return redirect(url_for('add_todo_list'))
+    flash('List was successfully added', 'success')
+
+    return redirect(url_for('get_lists'))
 
 @app.route("/lists/new")
 def add_todo_list():
