@@ -31,10 +31,11 @@ def get_lists():
 @app.route('/lists', methods=["POST"])
 def create_list():
     title = request.form.get('list_title').strip()
-    if not title:
-        flash('A title was not provided', 'error')
+    if any(title == lst['title'] for lst in session['lists']):
+        flash('The title must be unique.', 'error')
         return redirect(url_for('add_todo_list'))
-    else:
+    
+    if 1 <= len(title) <= 100:
         session['lists'].append({
             'id': str(uuid4()),
             'title': title,
@@ -44,7 +45,10 @@ def create_list():
 
         flash('List was successfully added', 'success')
 
-    return redirect(url_for('get_lists'))
+        return redirect(url_for('get_lists'))
+    
+    flash('The title must be between 1 and 100 characters.', 'error')
+    return redirect(url_for('add_todo_list'))
 
 @app.route("/lists/new")
 def add_todo_list():
