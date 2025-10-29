@@ -33,6 +33,7 @@ def create_list():
     title = request.form.get('list_title').strip()
     if any(title == lst['title'] for lst in session['lists']):
         flash('The title must be unique.', 'error')
+        session['new_list_title'] = title
         return redirect(url_for('add_todo_list'))
     
     if 1 <= len(title) <= 100:
@@ -48,11 +49,13 @@ def create_list():
         return redirect(url_for('get_lists'))
     
     flash('The title must be between 1 and 100 characters.', 'error')
+    session['new_list_title'] = title
     return redirect(url_for('add_todo_list'))
 
 @app.route("/lists/new")
 def add_todo_list():
-    return render_template('new_list.html')
+    title = session.get('new_list_title', "")
+    return render_template('new_list.html', title=title)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
