@@ -9,6 +9,15 @@
   </head>
   <body>
     <header>
+      {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">
+              <p>{{ message }}</p>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
       <h1>Todo Tracker</h1>
       <div class="actions">
         {% block header_links %}

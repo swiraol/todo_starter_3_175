@@ -33,7 +33,7 @@ def create_list():
     title = request.form.get('list_title').strip()
     if not title:
         flash('A title was not provided', 'error')
-        return render_template('new_list.html')
+        return redirect(url_for('add_todo_list'))
     else:
         session['lists'].append({
             'id': str(uuid4()),
