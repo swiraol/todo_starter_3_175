@@ -10,6 +10,7 @@ from flask import (
     url_for,
 )
 from todos.utils import error_for_list_title
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 
@@ -26,7 +27,7 @@ def index():
 
 @app.route('/lists')
 def get_lists():
-
+    print("lists: ", session['lists'])
     return render_template('lists.html', lists=session['lists'])
 
 @app.route('/lists', methods=["POST"])
@@ -53,6 +54,13 @@ def create_list():
 def add_todo_list():
     title = session.get('new_list_title', "")
     return render_template('new_list.html', title=title)
+
+@app.route("/lists/<list_id>")
+def show_list(list_id):
+    lst = next((lst for lst in session['lists'] if list_id == lst['id']), None)
+    if not lst:
+        raise NotFound(description="List not found")
+    return render_template('list.html', lst=lst)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
