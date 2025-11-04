@@ -81,6 +81,19 @@ def add_todo(list_id):
     session.modified = True
     flash("The todo was successfully added.", "success")
     return redirect(url_for("show_list", list_id=list_id))
+
+@app.route('/lists/<list_id>/todos/<todo_id>/toggle', methods=["POST"])
+def complete_todo(list_id, todo_id):
+    lst = find_list_by_id(list_id, session['lists'])
+
+    if not lst:
+        raise NotFound(description="List not found")
+    print("list: ", lst)
+    for todo in lst['todos']:
+        if todo_id == todo['id']:
+            todo['completed'] = True 
+    
+    return redirect(url_for('show_list', list_id=list_id))
     
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
