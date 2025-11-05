@@ -18,4 +18,9 @@ def find_list_by_id(list_id, lists):
 
 def find_todo_by_id(todo_id, todos):
     return next((todo for todo in todos if todo_id == todo['id']), None)
+
+def delete_todo_by_id(todo_id, lst):
+    lst['todos'] = [todo for todo in todos if todo_id != todo['id']]
+    return None
+
             
