@@ -20,7 +20,12 @@ def find_todo_by_id(todo_id, todos):
     return next((todo for todo in todos if todo_id == todo['id']), None)
 
 def delete_todo_by_id(todo_id, lst):
-    lst['todos'] = [todo for todo in todos if todo_id != todo['id']]
+    lst['todos'] = [todo for todo in lst['todos'] if todo_id != todo['id']]
+    return None
+
+def complete_all_todos(todos):
+    for todo in todos:
+        todo['completed'] = True 
     return None
 
             
