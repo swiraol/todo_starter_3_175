@@ -9,7 +9,7 @@ from flask import (
     session, 
     url_for,
 )
-from todos.utils import error_for_list_title, error_for_todo_title, find_list_by_id
+from todos.utils import error_for_list_title, error_for_todo_title, find_list_by_id, find_todo_by_id
 from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
@@ -83,17 +83,20 @@ def add_todo(list_id):
     return redirect(url_for("show_list", list_id=list_id))
 
 @app.route('/lists/<list_id>/todos/<todo_id>/toggle', methods=["POST"])
-def complete_todo(list_id, todo_id):
+def update_todo_status(list_id, todo_id):
     lst = find_list_by_id(list_id, session['lists'])
 
     if not lst:
         raise NotFound(description="List not found")
-    print("list: ", lst)
-    for todo in lst['todos']:
-        if todo_id == todo['id']:
-            todo['completed'] = True 
-    
-    return redirect(url_for('show_list', list_id=list_id))
+
+    todo = find_todo_by_id(todo_id, lst['todos'])
+    if todo:
+        todo['completed'] = (request.form['completed'] == 'True')
+        session.modified = True
+        flash("The todo is completed", "success")
+        return redirect(url_for('show_list', list_id=list_id))
+    else:
+        raise NotFound(description="The todo was not found")
     
 if __name__ == "__main__":
     app.run(debug=True, port=5003)

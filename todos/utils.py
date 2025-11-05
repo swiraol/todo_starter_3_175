@@ -15,3 +15,7 @@ def error_for_todo_title(todo_title):
 
 def find_list_by_id(list_id, lists):
     return next((lst for lst in lists if list_id == lst['id']), None)
+
+def find_todo_by_id(todo_id, todos):
+    return next((todo for todo in todos if todo_id == todo['id']), None)
+            
