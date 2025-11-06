@@ -64,16 +64,21 @@ def show_list(list_id):
 
 @app.route("/lists/<list_id>", methods=["POST"])
 def update_list(list_id):
-    title_from_form = request.form('list_title').strip()
+    lst = find_list_by_id(list_id, session['lists'])
+
+    if not lst:
+        raise NotFound(description="List not found")
+    
+    title_from_form = request.form['list_title'].strip()
     error = error_for_list_title(title_from_form, session['lists'])
     if error:
-        return render_template("edit_list.html", title=title_from_form)
-    return redirect("")
-
-    # lst = find_list_by_id(list_id, session['lists'])
-
-    # if not lst:
-    #     raise NotFound(description="List not found")
+        flash(error, "error")
+        return render_template("edit_list.html", lst=lst, title=title_from_form)
+    
+    lst['title'] = title_from_form
+    flash("List title has been updated.", "success")
+    session.modified = True
+    return redirect(url_for('show_list', list_id=list_id))
 
 @app.route("/lists/<list_id>/delete", methods=["POST"])
 def delete_list(list_id):
