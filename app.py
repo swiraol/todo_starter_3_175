@@ -62,6 +62,23 @@ def show_list(list_id):
         raise NotFound(description="List not found")
     return render_template('list.html', lst=lst)
 
+@app.route("/lists/<list_id>", methods=["POST"])
+def update_list(list_id):
+    title_from_form = request.form('list_title').strip()
+    error = error_for_list_title(title_from_form, session['lists'])
+    if error:
+        return render_template("edit_list.html", title=title_from_form)
+    return redirect("")
+
+    # lst = find_list_by_id(list_id, session['lists'])
+
+    # if not lst:
+    #     raise NotFound(description="List not found")
+
+@app.route("/lists/<list_id>/delete", methods=["POST"])
+def delete_list(list_id):
+    return "List deleted"
+
 @app.route("/lists/<list_id>/todos", methods=["POST"])
 def add_todo(list_id):
     todo_title = request.form.get('todo').strip()
@@ -126,6 +143,15 @@ def mark_all_todos(list_id):
     session.modified = True
     flash("All todos are completed.", "success")
     return redirect(url_for("show_list", list_id=list_id))
+
+@app.route("/lists/<list_id>/edit")
+def edit_list(list_id):
+    lst = find_list_by_id(list_id, session['lists'])
+
+    if not lst:
+        raise NotFound(description="List not found")
+
+    return render_template("edit_list.html", lst=lst)
     
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
