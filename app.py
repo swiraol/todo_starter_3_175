@@ -77,7 +77,14 @@ def update_list(list_id):
 
 @app.route("/lists/<list_id>/delete", methods=["POST"])
 def delete_list(list_id):
-    return "List deleted"
+    lst = find_list_by_id(list_id, session['lists'])
+    if not lst:
+        raise NotFound(description="List not found")
+    
+    session['lists'] = [lst for lst in session['lists'] if list_id != lst['id']]
+    flash("The list has been deleted", "success")
+    session.modified = True
+    return redirect(url_for('get_lists'))
 
 @app.route("/lists/<list_id>/todos", methods=["POST"])
 def add_todo(list_id):
