@@ -82,7 +82,7 @@ def add_todo_list():
 @require_list
 def show_list(lst, list_id):
     lst['todos'] = sort_items(lst['todos'], is_todo_completed)
-    return render_template('list.html', lst=lst)
+    return render_template('list.html', lst=lst, is_list_completed=is_list_completed)
 
 @app.route("/lists/<list_id>", methods=["POST"])
 @require_list
@@ -135,7 +135,7 @@ def update_todo_status(lst, todo, list_id, todo_id):
     
 @app.route("/lists/<list_id>/todos/<todo_id>/delete", methods=["POST"])
 @require_todo
-def delete_todo(list_id, todo_id):
+def delete_todo(lst, todo, list_id, todo_id):
     delete_todo_by_id(todo_id, lst)
     session.modified = True
     flash("Todo was successfully removed", "success")
