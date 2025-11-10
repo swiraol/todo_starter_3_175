@@ -10,7 +10,7 @@ from flask import (
     session, 
     url_for,
 )
-from todos.utils import complete_all_todos, error_for_list_title, delete_todo_by_id, error_for_todo_title, find_list_by_id, find_todo_by_id, is_list_completed, is_todo_completed, sort_items, todos_remaining
+from todos.utils import complete_all_todos, error_for_list_title, delete_todo_by_id, error_for_todo_title, find_list_by_id, find_todo_by_id, is_list_completed, is_todo_completed, remove_list_by_id, sort_items, todos_remaining
 from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
@@ -101,20 +101,21 @@ def update_list(lst, list_id):
 @app.route("/lists/<list_id>/delete", methods=["POST"])
 @require_list
 def delete_list(lst, list_id):    
-    session['lists'] = [lst for lst in session['lists'] if list_id != lst['id']]
+    new_lists = remove_list_by_id(session['lists'], list_id)
+    session['lists'] = new_lists
     flash("The list has been deleted", "success")
     session.modified = True
     return redirect(url_for('get_lists'))
 
 @app.route("/lists/<list_id>/todos", methods=["POST"])
 @require_list
-def add_todo(list_id):
+def add_todo(lst, list_id):
     todo_title = request.form.get('todo').strip()
     
     error = error_for_todo_title(todo_title)
     if error:
         flash(error, "error")
-        return render_template("list.html", lst=lst)
+        return render_template("list.html", lst=lst, is_list_completed=is_list_completed)
     
     lst['todos'].append({
         'title': todo_title,
@@ -130,7 +131,7 @@ def add_todo(list_id):
 def update_todo_status(lst, todo, list_id, todo_id):
         todo['completed'] = (request.form['completed'] == 'True')
         session.modified = True
-        flash("The todo is completed", "success")
+        flash(f"The todo has been marked as {'complete' if todo['completed'] else 'incomplete'}", "success")
         return redirect(url_for('show_list', list_id=list_id))
     
 @app.route("/lists/<list_id>/todos/<todo_id>/delete", methods=["POST"])
@@ -142,7 +143,7 @@ def delete_todo(lst, todo, list_id, todo_id):
     return redirect(url_for("show_list", list_id=list_id))
 
 @app.route("/lists/<list_id>/complete_all", methods=["POST"])
-@require_todo
+@require_list
 def mark_all_todos(lst, list_id):    
     complete_all_todos(lst['todos'])
     session.modified = True

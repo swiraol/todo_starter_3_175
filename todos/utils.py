@@ -44,3 +44,8 @@ def sort_items(items, select_completed):
     complete_items = [item for item in sorted_items if select_completed(item)]
 
     return incomplete_items + complete_items
+
+def remove_list_by_id(all_lists, list_id):
+    new_lists = [lst for lst in all_lists if list_id != lst['id']]
+
+    return new_lists
